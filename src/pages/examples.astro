@@ -1,0 +1,182 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ExampleManifest from "../components/ExampleManifest.astro";
+import ManifestTabs from "../components/ManifestTabs.astro";
+import { bbcExample } from "../data/bbcExample";
+import { bbcFootballFeedsExample } from "../data/bbcFootballFeedsExample";
+import { bbcSportFeedsExample } from "../data/bbcSportFeedsExample";
+import { daringFireballExample } from "../data/daringFireballExample";
+import { stuartBreckenridgeExample } from "../data/stuartBreckenridgeExample";
+
+const collectionSummaries = bbcExample.collections.map((collection) => ({
+  id: collection.id,
+  title: collection.title,
+  feedCount: collection.feed_count
+}));
+const totalFeeds = collectionSummaries.reduce((sum, collection) => sum + collection.feedCount, 0);
+const daringFireballFeedCount = daringFireballExample.feeds.length;
+const stuartCollectionCount = stuartBreckenridgeExample.collections.length;
+const stuartFeedCount = stuartBreckenridgeExample.collections.reduce(
+  (sum, collection) => sum + collection.feeds.length,
+  0
+);
+const bbcTabs = [
+  {
+    id: "collections",
+    label: "Collections",
+    title: "Example: BBC /.well-known/syndication",
+    document: bbcExample
+  },
+  {
+    id: "sport",
+    label: "Sport",
+    title: "Example: BBC Sport deferred feeds",
+    document: bbcSportFeedsExample
+  },
+  {
+    id: "football",
+    label: "Football",
+    title: "Example: BBC Sport Football deferred feeds",
+    document: bbcFootballFeedsExample
+  }
+];
+---
+
+<BaseLayout
+  title="Syndication Manifest Examples"
+  description="Predictable discovery for public feeds."
+>
+  <main class="main" id="main">
+    <article class="document">
+      <header class="document-header">
+        <p class="eyebrow">Examples</p>
+        <h1>Example syndication documents</h1>
+        <p class="lede">
+          These examples show how existing syndication feed pages could be represented as
+          <code>/.well-known/syndication</code> documents.
+        </p>
+      </header>
+
+      <div class="example-tabs" data-example-page-tabs>
+        <div class="tab-list" role="tablist" aria-label="Example publishers">
+          <button id="example-tab-bbc" type="button" role="tab" aria-selected="true" aria-controls="example-panel-bbc">
+            BBC
+          </button>
+          <button id="example-tab-daring-fireball" type="button" role="tab" aria-selected="false" aria-controls="example-panel-daring-fireball">
+            Daring Fireball
+          </button>
+          <button id="example-tab-stuart-breckenridge" type="button" role="tab" aria-selected="false" aria-controls="example-panel-stuart-breckenridge">
+            Stuart Breckenridge
+          </button>
+        </div>
+
+        <section id="example-panel-bbc" role="tabpanel" aria-labelledby="example-tab-bbc">
+          <h2>BBC</h2>
+          <p class="note">
+            This example is not endorsed by, affiliated with, or published by the BBC.
+            It was created by scanning the public BBC News feeds page, checking
+            representative BBC Sport RSS endpoints, and translating those feeds into
+            this draft format.
+          </p>
+          <p>
+            BBC is a useful example because feeds naturally fall under segments such
+            as <span class="bbc-news">BBC News</span> and <span class="bbc-sport">BBC Sport</span>.
+            Collections let a reader present those groups without scraping several full pages.
+          </p>
+          <p>
+            The full OPML catalogue at <code>news.bbc.co.uk/rss/feeds.opml</code> contains
+            1,725 feeds. This example shows a compact syndication document with deferred
+            collection URLs, so a reader can present the groups first and fetch the
+            detailed feed lists only when needed.
+          </p>
+          <p>
+            Deferred collection documents can also contain child collections. For
+            example, BBC Sport can expose a Football collection, and that football
+            document can expose a Scottish Football collection before a reader fetches
+            narrower team or topic feeds.
+          </p>
+          <p>
+            This example advertises {totalFeeds} feeds divided into {collectionSummaries.length}
+            deferred collections.
+          </p>
+          <dl class="summary-list compact">
+            {collectionSummaries.map((collection) => (
+              <div>
+                <dt>{collection.title}</dt>
+                <dd>{collection.feedCount} feeds</dd>
+              </div>
+            ))}
+          </dl>
+          <ManifestTabs tabs={bbcTabs} label="BBC example documents" id="bbc-example" />
+        </section>
+
+        <section id="example-panel-daring-fireball" role="tabpanel" aria-labelledby="example-tab-daring-fireball" hidden>
+          <h2>Daring Fireball</h2>
+          <p class="note">
+            This example is not endorsed by, affiliated with, or published by Daring
+            Fireball. It was created by scanning the public Daring Fireball feeds
+            page and translating the discovered feeds into this draft format.
+          </p>
+          <p>
+            The page's <code>&lt;head&gt;</code> advertises the main Atom feed and
+            JSON Feed. The articles-only feed and podcast feed are listed on the
+            feeds page, which means feed readers need to scrape the page or users
+            need to know where to look.
+          </p>
+          <p>
+            A <code>/.well-known/syndication</code> document puts those feeds in a reader-friendly
+            place with appropriate metadata. This example also includes the Daring
+            Fireball YouTube channel to show how a publication can advertise an
+            external feed.
+          </p>
+          <p>
+            This example advertises {daringFireballFeedCount} feeds in a single
+            document, without collections.
+          </p>
+          <ExampleManifest document={daringFireballExample} title="Example: Daring Fireball /.well-known/syndication" />
+        </section>
+
+        <section id="example-panel-stuart-breckenridge" role="tabpanel" aria-labelledby="example-tab-stuart-breckenridge" hidden>
+          <h2>Stuart Breckenridge</h2>
+          <p>
+            This example is based on the public feeds table on
+            <a href="https://stuartbreckenridge.net/about/">stuartbreckenridge.net/about</a>.
+            The page advertises RSS, Atom, and JSON Feed alternates in
+            <code>&lt;head&gt;</code>, then lists more feed variants in the body.
+          </p>
+          <p>
+            A Syndication Manifest document can turn that into three reader-facing
+            collections: All posts, Featured, and Links. Each collection carries the
+            RSS, Atom, and JSON Feed version of the same stream.
+          </p>
+          <p>
+            This example advertises {stuartFeedCount} feeds divided into {stuartCollectionCount}
+            inline collections.
+          </p>
+          <ExampleManifest document={stuartBreckenridgeExample} title="Example: Stuart Breckenridge /.well-known/syndication" />
+        </section>
+      </div>
+    </article>
+  </main>
+</BaseLayout>
+
+<script>
+  for (const tabs of document.querySelectorAll("[data-example-page-tabs]")) {
+    const buttons = Array.from(tabs.querySelectorAll(':scope > .tab-list [role="tab"]'));
+    const panels = Array.from(tabs.querySelectorAll(':scope > [role="tabpanel"]'));
+
+    const select = (button) => {
+      for (const candidate of buttons) {
+        candidate.setAttribute("aria-selected", String(candidate === button));
+      }
+
+      for (const panel of panels) {
+        panel.hidden = panel.id !== button.getAttribute("aria-controls");
+      }
+    };
+
+    for (const button of buttons) {
+      button.addEventListener("click", () => select(button));
+    }
+  }
+</script>

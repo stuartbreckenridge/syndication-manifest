@@ -1,0 +1,155 @@
+---
+const simpleExample = `{
+  "version": "https://syndicationmanifest.org/spec/0.1",
+  "publication": {
+    "name": "Example Publication",
+    "uri": "https://example.com/"
+  },
+  "feeds": [
+    {
+      "uri": "https://example.com/feed.xml",
+      "mime_type": "application/rss+xml",
+      "rel": ["self", "canonical"],
+      "title": "All posts",
+      "icon_url": "https://example.com/icons/feed.png"
+    }
+  ]
+}`;
+
+const collectionsExample = `{
+  "version": "https://syndicationmanifest.org/spec/0.1",
+  "publication": {
+    "name": "Example Media",
+    "uri": "https://example.com/",
+    "language": "en"
+  },
+  "collections": [
+    {
+      "id": "news",
+      "title": "News",
+      "uri": "https://example.com/news/",
+      "icon_url": "https://example.com/icons/news.png",
+      "description": "Public feeds from the news desk.",
+      "feed_count": 24,
+      "feeds_uri": "https://example.com/.well-known/syndication/news"
+    },
+    {
+      "id": "sport",
+      "title": "Sport",
+      "uri": "https://example.com/sport/",
+      "icon_url": "https://example.com/icons/sport.png",
+      "description": "Public feeds from the sport desk.",
+      "feed_count": 12,
+      "feeds_uri": "https://example.com/.well-known/syndication/sport"
+    }
+  ]
+}`;
+
+const nestedCollectionsExample = `{
+  "version": "https://syndicationmanifest.org/spec/0.1",
+  "publication": {
+    "name": "Example Sport",
+    "uri": "https://example.com/sport/",
+    "language": "en"
+  },
+  "collections": [
+    {
+      "id": "scotland",
+      "title": "Scottish football",
+      "uri": "https://example.com/sport/football/scotland/",
+      "icon_url": "https://example.com/icons/scotland-football.png",
+      "description": "Scottish football team feeds.",
+      "feeds_uri": "https://example.com/.well-known/syndication/sport/football/scotland"
+    }
+  ],
+  "feeds": [
+    {
+      "uri": "https://example.com/sport/football/rss.xml",
+      "mime_type": "application/rss+xml",
+      "title": "Football",
+      "categories": ["sport", "football"]
+    }
+  ]
+}`;
+
+const teamFeedsExample = `{
+  "version": "https://syndicationmanifest.org/spec/0.1",
+  "publication": {
+    "name": "Example Sport",
+    "uri": "https://example.com/sport/",
+    "language": "en"
+  },
+  "feeds": [
+    {
+      "uri": "https://example.com/sport/football/scotland/caledonia-city.xml",
+      "mime_type": "application/rss+xml",
+      "title": "Caledonia City",
+      "categories": ["sport", "football", "scotland"]
+    },
+    {
+      "uri": "https://example.com/sport/football/scotland/northbank-united.xml",
+      "mime_type": "application/rss+xml",
+      "title": "Northbank United",
+      "categories": ["sport", "football", "scotland"]
+    }
+  ]
+}`;
+---
+
+<div class="example-tabs" data-example-tabs>
+  <div class="tab-list" role="tablist" aria-label="/.well-known/syndication examples">
+    <button id="tab-simple" type="button" role="tab" aria-selected="true" aria-controls="panel-simple">
+      Simple site
+    </button>
+    <button id="tab-collections" type="button" role="tab" aria-selected="false" aria-controls="panel-collections">
+      With collections
+    </button>
+    <button id="tab-nested-collections" type="button" role="tab" aria-selected="false" aria-controls="panel-nested-collections">
+      Nested collections
+    </button>
+    <button id="tab-team-feeds" type="button" role="tab" aria-selected="false" aria-controls="panel-team-feeds">
+      Team feeds
+    </button>
+  </div>
+
+  <figure id="panel-simple" class="json-example" role="tabpanel" aria-labelledby="tab-simple">
+    <figcaption>Simple site</figcaption>
+    <pre><code>{simpleExample}</code></pre>
+  </figure>
+
+  <figure id="panel-collections" class="json-example" role="tabpanel" aria-labelledby="tab-collections" hidden>
+    <figcaption>Site with collections</figcaption>
+    <pre><code>{collectionsExample}</code></pre>
+  </figure>
+
+  <figure id="panel-nested-collections" class="json-example" role="tabpanel" aria-labelledby="tab-nested-collections" hidden>
+    <figcaption>Nested collection document</figcaption>
+    <pre><code>{nestedCollectionsExample}</code></pre>
+  </figure>
+
+  <figure id="panel-team-feeds" class="json-example" role="tabpanel" aria-labelledby="tab-team-feeds" hidden>
+    <figcaption>Team feed document</figcaption>
+    <pre><code>{teamFeedsExample}</code></pre>
+  </figure>
+</div>
+
+<script>
+  for (const tabs of document.querySelectorAll("[data-example-tabs]")) {
+    const buttons = Array.from(tabs.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(tabs.querySelectorAll('[role="tabpanel"]'));
+
+    const select = (button) => {
+      for (const candidate of buttons) {
+        candidate.setAttribute("aria-selected", String(candidate === button));
+      }
+
+      for (const panel of panels) {
+        panel.hidden = panel.id !== button.getAttribute("aria-controls");
+      }
+    };
+
+    for (const button of buttons) {
+      button.addEventListener("click", () => select(button));
+    }
+  }
+</script>

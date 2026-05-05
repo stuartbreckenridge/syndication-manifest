@@ -1,0 +1,265 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import JsonExample from "../../components/JsonExample.astro";
+---
+
+<BaseLayout
+  title="Syndication Manifest Specification"
+  description="Predictable discovery for public feeds."
+>
+  <main class="main" id="main">
+    <header class="document document-header">
+      <p class="eyebrow">Specification</p>
+      <h1>Syndication Manifest</h1>
+      <p class="lede">
+        This draft defines a JSON syndication discovery document for public feeds,
+        including RSS, Atom, and JSON Feed.
+      </p>
+      <dl class="summary-list compact" aria-label="Spec summary">
+        <div>
+          <dt>Status</dt>
+          <dd>Draft 0.1</dd>
+        </div>
+        <div>
+          <dt>Document</dt>
+          <dd>JSON object</dd>
+        </div>
+        <div>
+          <dt>Scope</dt>
+          <dd>Public syndication feeds</dd>
+        </div>
+      </dl>
+    </header>
+
+    <section>
+      <div class="document spec-layout">
+        <aside class="toc" aria-label="Spec sections">
+          <a href="#purpose">Purpose</a>
+          <a href="#location">Discovery Location</a>
+          <a href="#format">Document Format</a>
+          <a href="#members">Members</a>
+          <a href="#relations">Relations</a>
+          <a href="#authority">Authority</a>
+          <a href="#clients">Client Behaviour</a>
+          <a href="#publishers">Publisher Behaviour</a>
+          <a href="#security">Security</a>
+          <a href="#example">Example</a>
+        </aside>
+
+        <article class="spec-content">
+          <section class="spec-section" id="purpose">
+            <h2>Purpose</h2>
+            <p>
+              Feed readers often discover syndication feeds by parsing HTML <code>&lt;head&gt;</code>
+              elements, reading HTTP <code>Link</code> headers, and guessing likely feed URLs.
+              This specification defines a dedicated location where publishers can
+              intentionally advertise their public syndication endpoints.
+            </p>
+          </section>
+
+          <section class="spec-section" id="location">
+            <h2>Discovery Location</h2>
+            <p>The canonical discovery URI is:</p>
+            <div class="definition-list">
+              <div class="definition"><code>/.well-known/syndication</code><p>Canonical JSON syndication discovery document.</p></div>
+              <div class="definition"><code>/.well-known/syndication.json</code><p>Optional JSON alias.</p></div>
+            </div>
+            <ul class="normative-list">
+              <li>The alias MAY return the same document as the canonical URI.</li>
+              <li>The alias MAY redirect to the canonical URI.</li>
+            </ul>
+          </section>
+
+          <section class="spec-section" id="format">
+            <h2>Document Format</h2>
+            <ul class="normative-list">
+              <li>The syndication discovery document MUST be a JSON object.</li>
+              <li>The document MUST describe public syndication feeds only.</li>
+              <li>Publishers SHOULD serve it with <code>Content-Type: application/json</code>.</li>
+            </ul>
+          </section>
+
+          <section class="spec-section" id="members">
+            <h2>Members</h2>
+
+            <h3>Top-Level Object</h3>
+            <div class="definition-list">
+              <div class="definition"><code>version</code><p>Required string. Identifies the version of this syndication discovery format. For this draft, use <code>https://syndicationmanifest.org/spec/0.1</code>.</p></div>
+              <div class="definition"><code>publication</code><p>Required object. Describes the publication or publisher responsible for the syndication document.</p></div>
+              <div class="definition"><code>feeds</code><p>Optional array. Contains feed objects for the publication as a whole.</p></div>
+              <div class="definition"><code>collections</code><p>Optional array. Contains named collections of feeds within the publication.</p></div>
+              <div class="definition"><code>poll_interval_seconds</code><p>Optional integer. Advisory default minimum number of seconds between automatic fetches of listed feeds.</p></div>
+            </div>
+            <ul class="normative-list">
+              <li>A document MUST include <code>publication</code>.</li>
+              <li>A document MUST include at least one of <code>feeds</code> or <code>collections</code>.</li>
+            </ul>
+
+            <h3>Publication Object</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Member</th><th>Required</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>name</code></td><td>Yes</td><td>Human-readable publication or publisher name.</td></tr>
+                  <tr><td><code>uri</code></td><td>Yes</td><td>Absolute URI for the publication or publisher.</td></tr>
+                  <tr><td><code>description</code></td><td>No</td><td>Short human-readable description.</td></tr>
+                  <tr><td><code>language</code></td><td>No</td><td>BCP 47 language tag.</td></tr>
+                  <tr><td><code>icon</code></td><td>No</td><td>Absolute URI for an image representing the publication.</td></tr>
+                  <tr><td><code>categories</code></td><td>No</td><td>Array of strings containing broad descriptors for the publication.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Feed Object</h3>
+            <p>
+              Feed objects may appear in top-level <code>feeds</code> or inside a
+              collection's <code>feeds</code> array.
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Member</th><th>Required</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>uri</code></td><td>Yes</td><td>Absolute URI for the feed.</td></tr>
+                  <tr><td><code>mime_type</code></td><td>Yes</td><td>Media type of the feed resource. Recognised values are <code>application/rss+xml</code>, <code>application/atom+xml</code>, and <code>application/feed+json</code>.</td></tr>
+                  <tr><td><code>format_version</code></td><td>No</td><td>Version of the feed format, when applicable. Examples include <code>2.0</code> for RSS, <code>1.0</code> for Atom, and <code>1.1</code> for JSON Feed.</td></tr>
+                  <tr><td><code>rel</code></td><td>No</td><td>Array of relationship strings.</td></tr>
+                  <tr><td><code>title</code></td><td>No</td><td>Human-readable feed title.</td></tr>
+                  <tr><td><code>icon_url</code></td><td>No</td><td>Absolute URI for an image representing the feed.</td></tr>
+                  <tr><td><code>description</code></td><td>No</td><td>Short human-readable feed description.</td></tr>
+                  <tr><td><code>language</code></td><td>No</td><td>BCP 47 language tag.</td></tr>
+                  <tr><td><code>categories</code></td><td>No</td><td>Publisher-declared discovery categories for presentation and selection.</td></tr>
+                  <tr><td><code>home_page_uri</code></td><td>No</td><td>Absolute URI for the page, profile, channel, or section represented by the feed.</td></tr>
+                  <tr><td><code>poll_interval_seconds</code></td><td>No</td><td>Advisory feed-specific minimum polling interval. Overrides the top-level value.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <ul class="normative-list">
+              <li>Feed URIs MAY be hosted on another origin.</li>
+              <li>For <code>poll_interval_seconds</code>, clients SHOULD wait at least the specified number of seconds between automatic fetches of listed feeds.</li>
+            </ul>
+
+            <h3>Collection Object</h3>
+            <p>
+              Collections let large publishers group feeds by section, product, show,
+              channel, or other reader-facing organisation.
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Member</th><th>Required</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>id</code></td><td>Yes</td><td>Stable identifier for the collection within the document.</td></tr>
+                  <tr><td><code>title</code></td><td>Yes</td><td>Human-readable collection title.</td></tr>
+                  <tr><td><code>icon_url</code></td><td>No</td><td>Absolute URI for an image representing the collection.</td></tr>
+                  <tr><td><code>feeds</code></td><td>No</td><td>Array of feed objects in the collection.</td></tr>
+                  <tr><td><code>feeds_uri</code></td><td>No</td><td>Absolute URI for a JSON syndication document containing the collection's feeds, child collections, or both.</td></tr>
+                  <tr><td><code>feed_count</code></td><td>No</td><td>Advisory number of feeds in the collection.</td></tr>
+                  <tr><td><code>uri</code></td><td>No</td><td>Absolute URI for the collection's home page, section, product, show, or channel.</td></tr>
+                  <tr><td><code>description</code></td><td>No</td><td>Short human-readable collection description.</td></tr>
+                  <tr><td><code>language</code></td><td>No</td><td>BCP 47 language tag.</td></tr>
+                  <tr><td><code>categories</code></td><td>No</td><td>Array of strings containing broad descriptors for the collection.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <ul class="normative-list">
+              <li>If <code>collections</code> is present, each collection MUST include <code>id</code> and <code>title</code>.</li>
+              <li>Each collection MUST include at least one of <code>feeds</code> or <code>feeds_uri</code>.</li>
+              <li>Collection <code>id</code> values MUST be unique within the document.</li>
+              <li>A collection MAY include both <code>feeds</code> and <code>feeds_uri</code>.</li>
+              <li>If <code>feeds_uri</code> is present, clients MAY fetch it to retrieve the collection's feeds, child collections, or both.</li>
+              <li>Clients MAY use collections to organise feed choices.</li>
+              <li>Collections MAY form a hierarchy across documents. For example, a <code>Sport</code> collection MAY link to a document containing a <code>Football</code> collection, which MAY link to a document containing regional or team-level collections and feeds.</li>
+            </ul>
+          </section>
+
+          <section class="spec-section" id="relations">
+            <h2>Relations</h2>
+            <p>
+              <code>rel</code> is an optional array of strings. Recognised values for
+              this draft are <code>self</code>, <code>canonical</code>, and
+              <code>alternate</code>.
+            </p>
+            <div class="definition-list">
+              <div class="definition"><code>self</code><p>This feed is the publisher's primary advertised feed for the publication or section described by the feed object.</p></div>
+              <div class="definition"><code>canonical</code><p>This feed is the preferred stable URI clients should store for subscription, deduplication, and comparison.</p></div>
+              <div class="definition"><code>alternate</code><p>This feed is an alternate feed representation or additional feed the publisher wants to advertise.</p></div>
+            </div>
+            <ul class="normative-list">
+              <li>If <code>rel</code> is omitted, clients MUST treat it as <code>["alternate"]</code>.</li>
+            </ul>
+          </section>
+
+          <section class="spec-section" id="authority">
+            <h2>Authority And Origin</h2>
+            <p>
+              A syndication document represents the publication's claim about the feeds
+              it wishes to advertise. Listing an external feed is a statement by the publication,
+              not proof that the publication controls the external feed.
+            </p>
+            <ul class="normative-list">
+              <li>A syndication document MAY list feeds hosted on other origins.</li>
+              <li>Clients MUST NOT assume that an off-origin feed is controlled by the origin serving the syndication document.</li>
+              <li>Clients SHOULD display feed metadata and source origins clearly when presenting discovered feeds.</li>
+            </ul>
+          </section>
+
+          <section class="spec-section" id="clients">
+            <h2>Client Behaviour</h2>
+            <ul class="normative-list">
+              <li>Clients SHOULD request <code>/.well-known/syndication</code> first.</li>
+              <li>Clients MAY request <code>/.well-known/syndication.json</code> if the canonical URI is unavailable.</li>
+              <li>If no valid syndication document is found, clients MAY fall back to HTML <code>&lt;head&gt;</code> discovery, HTTP <code>Link</code> headers, or other legacy discovery methods.</li>
+              <li>If a valid syndication document is available, clients MUST treat it as authoritative for the publication's advertised feeds.</li>
+              <li>Clients MUST ignore unknown members.</li>
+              <li>Clients SHOULD NOT reject a valid document because it contains unknown categories or extension members.</li>
+              <li>Clients MUST process top-level <code>feeds</code> and inline collection feeds.</li>
+              <li>Clients MUST NOT be required to fetch every <code>feeds_uri</code> before presenting top-level collections.</li>
+              <li>Clients MAY use discovery metadata to present feed choices before fetching the listed feeds.</li>
+              <li>Clients MAY fetch a collection's <code>feeds_uri</code> in response to user action or when the client needs the full collection.</li>
+              <li>Clients SHOULD avoid unbounded recursive fetching of collection documents.</li>
+              <li>Clients SHOULD detect and stop collection traversal loops.</li>
+              <li>Clients SHOULD NOT assume discovery metadata is a complete representation of the feed resource.</li>
+            </ul>
+          </section>
+
+          <section class="spec-section" id="publishers">
+            <h2>Publisher Behaviour</h2>
+            <p>
+              <code>poll_interval_seconds</code> is advisory.
+            </p>
+            <ul class="normative-list">
+              <li>Publishers SHOULD use absolute URIs for all URI values.</li>
+              <li>Publishers SHOULD keep the syndication document small.</li>
+              <li>Publishers SHOULD update the document when feeds or collections are added, removed, relocated, or replaced.</li>
+              <li>Clients MAY fetch less frequently than <code>poll_interval_seconds</code>.</li>
+              <li>Clients MAY fetch sooner in response to explicit user action.</li>
+              <li>Clients SHOULD still use HTTP caching and conditional requests when fetching feeds.</li>
+            </ul>
+          </section>
+
+          <section class="spec-section" id="security">
+            <h2>Security And Privacy</h2>
+            <p>
+              Syndication discovery documents are public metadata.
+            </p>
+            <ul class="normative-list">
+              <li>Publishers MUST NOT list private, secret, or user-specific feed URLs.</li>
+              <li>Clients SHOULD apply usual HTTP redirect, caching, and content validation rules.</li>
+              <li>Clients MAY apply additional verification, reputation, or user-confirmation checks before subscribing to off-origin feeds.</li>
+            </ul>
+          </section>
+
+          <section class="spec-section" id="example">
+            <h2>Example</h2>
+            <JsonExample />
+          </section>
+        </article>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

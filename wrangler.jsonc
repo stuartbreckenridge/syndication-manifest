@@ -1,0 +1,14 @@
+{
+  "name": "syndication-manifest",
+  "compatibility_date": "2026-05-05",
+  "routes": [
+    {
+      "pattern": "syndicationmanifest.org",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}
