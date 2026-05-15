@@ -1,0 +1,182 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Publisher Guide | Syndication Manifest"
+  description="A step-by-step guide for adding a Syndication Manifest document to your site."
+>
+  <main class="main" id="main">
+    <article class="document">
+      <header class="document-header">
+        <p class="eyebrow">Guide</p>
+        <h1>Publishing a syndication manifest</h1>
+        <p class="lede">
+          Four steps to add a Syndication Manifest document to your site so feed
+          readers can discover your public feeds in one request.
+        </p>
+      </header>
+
+      <section>
+        <h2>1. Write the document</h2>
+        <p>
+          The minimum viable manifest names your publication and lists one feed.
+          For most blogs that is enough.
+        </p>
+        <figure class="json-example">
+          <figcaption>/.well-known/syndication</figcaption>
+          <pre><code>{`{
+  "version": "0.1",
+  "publication": {
+    "name": "Example Publication",
+    "uri": "https://example.com/"
+  },
+  "feeds": [
+    {
+      "uri": "https://example.com/feed.xml",
+      "mime_type": "application/rss+xml",
+      "rel": ["primary", "subscribe"],
+      "title": "All posts"
+    }
+  ]
+}`}</code></pre>
+        </figure>
+        <p>
+          Larger publications should group feeds into
+          <a href="/spec/0.1/#collections">collections</a>
+          and defer detailed feed lists with <code>feeds_uri</code>.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. Host it at /.well-known/syndication</h2>
+        <p>
+          Serve the document at the literal path <code>/.well-known/syndication</code>
+          on the publication's origin. <code>/.well-known/syndication.json</code> is an
+          optional alias.
+        </p>
+
+        <h3>Astro</h3>
+        <figure class="json-example">
+          <figcaption>src/pages/.well-known/syndication.ts</figcaption>
+          <pre><code>{`import type { APIRoute } from "astro";
+
+export const GET: APIRoute = () =>
+  new Response(JSON.stringify(manifest, null, 2), {
+    headers: {
+      "Content-Type": "application/syndication+json; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "public, max-age=3600"
+    }
+  });`}</code></pre>
+        </figure>
+
+        <h3>Next.js (App Router)</h3>
+        <figure class="json-example">
+          <figcaption>app/.well-known/syndication/route.ts</figcaption>
+          <pre><code>{`export const dynamic = "force-static";
+
+export function GET() {
+  return Response.json(manifest, {
+    headers: {
+      "Content-Type": "application/syndication+json; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "public, max-age=3600"
+    }
+  });
+}`}</code></pre>
+        </figure>
+
+        <h3>Hugo</h3>
+        <p>
+          Add a content file at <code>content/.well-known/syndication.md</code> with
+          custom output formats, or generate the JSON via a data file and template.
+          Hugo serves the file at the configured path.
+        </p>
+
+        <h3>Jekyll</h3>
+        <p>
+          Place a file at <code>.well-known/syndication.json</code> with front matter
+          <code>permalink: /.well-known/syndication</code>. Jekyll renders Liquid in
+          the file before writing it.
+        </p>
+
+        <h3>WordPress</h3>
+        <p>
+          Add a rewrite rule in a small plugin that maps
+          <code>/.well-known/syndication</code> to a template generating the JSON from
+          your feed list. Set the content type header from the template.
+        </p>
+
+        <h3>nginx</h3>
+        <figure class="json-example">
+          <figcaption>nginx site config</figcaption>
+          <pre><code>{`location = /.well-known/syndication {
+  default_type application/syndication+json;
+  add_header Access-Control-Allow-Origin *;
+  add_header Cache-Control "public, max-age=3600";
+  alias /var/www/example.com/syndication.json;
+}`}</code></pre>
+        </figure>
+
+        <h3>Apache</h3>
+        <figure class="json-example">
+          <figcaption>.htaccess</figcaption>
+          <pre><code>{`<Files "syndication">
+  ForceType application/syndication+json
+  Header set Access-Control-Allow-Origin "*"
+  Header set Cache-Control "public, max-age=3600"
+</Files>`}</code></pre>
+        </figure>
+      </section>
+
+      <section>
+        <h2>3. Set the right HTTP headers</h2>
+        <p>The discovery endpoint should respond with:</p>
+        <ul>
+          <li>
+            <code>Content-Type: application/syndication+json; charset=utf-8</code>
+          </li>
+          <li>
+            <code>Access-Control-Allow-Origin: *</code>. Browser-based readers cannot
+            discover feeds without this header.
+          </li>
+          <li>
+            <code>Cache-Control: public, max-age=…</code>. Match the document's
+            advertised <code>poll_interval_seconds</code> when present.
+          </li>
+          <li>
+            Conditional caching: send <code>ETag</code> or <code>Last-Modified</code>
+            and respond <code>304</code> to matching conditional requests.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. Advertise it (optional)</h2>
+        <p>
+          Older readers can find the manifest from any HTML page if you advertise it
+          in the head or as a Link header.
+        </p>
+        <figure class="json-example">
+          <figcaption>HTML</figcaption>
+          <pre><code>{`<link rel="syndication"
+      type="application/syndication+json"
+      href="/.well-known/syndication">`}</code></pre>
+        </figure>
+        <figure class="json-example">
+          <figcaption>HTTP</figcaption>
+          <pre><code>{`Link: </.well-known/syndication>; rel="syndication"; type="application/syndication+json"`}</code></pre>
+        </figure>
+      </section>
+
+      <section>
+        <h2>Verify</h2>
+        <p>
+          Use the <a href="/validate/">validator</a> to check your document against the
+          0.1 schema and confirm the headers your origin returns.
+        </p>
+      </section>
+    </article>
+  </main>
+</BaseLayout>

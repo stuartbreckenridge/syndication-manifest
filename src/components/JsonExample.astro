@@ -1,6 +1,6 @@
 ---
 const simpleExample = `{
-  "version": "https://syndicationmanifest.org/spec/0.1",
+  "version": "0.1",
   "publication": {
     "name": "Example Publication",
     "uri": "https://example.com/"
@@ -9,7 +9,7 @@ const simpleExample = `{
     {
       "uri": "https://example.com/feed.xml",
       "mime_type": "application/rss+xml",
-      "rel": ["self", "canonical"],
+      "rel": ["primary", "subscribe"],
       "title": "All posts",
       "icon_url": "https://example.com/icons/feed.png"
     }
@@ -17,7 +17,9 @@ const simpleExample = `{
 }`;
 
 const collectionsExample = `{
-  "version": "https://syndicationmanifest.org/spec/0.1",
+  "version": "0.1",
+  "self_uri": "https://example.com/.well-known/syndication",
+  "updated": "2026-05-16T09:30:00Z",
   "publication": {
     "name": "Example Media",
     "uri": "https://example.com/",
@@ -46,7 +48,7 @@ const collectionsExample = `{
 }`;
 
 const nestedCollectionsExample = `{
-  "version": "https://syndicationmanifest.org/spec/0.1",
+  "version": "0.1",
   "publication": {
     "name": "Example Sport",
     "uri": "https://example.com/sport/",
@@ -73,7 +75,7 @@ const nestedCollectionsExample = `{
 }`;
 
 const teamFeedsExample = `{
-  "version": "https://syndicationmanifest.org/spec/0.1",
+  "version": "0.1",
   "publication": {
     "name": "Example Sport",
     "uri": "https://example.com/sport/",

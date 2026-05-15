@@ -467,6 +467,53 @@ pre code {
   max-width: 72ch;
 }
 
+.spec-content > p,
+.spec-content > ul,
+.spec-content > ol,
+.spec-content li {
+  max-width: 72ch;
+}
+
+.spec-content > ul,
+.spec-content > ol {
+  margin: 18px 0 0;
+  padding-left: 1.2rem;
+}
+
+.spec-content > ul li + li,
+.spec-content > ol li + li {
+  margin-top: 0.45rem;
+}
+
+.spec-content h2 {
+  scroll-margin-top: 24px;
+}
+
+.spec-content h3 {
+  scroll-margin-top: 24px;
+}
+
+.spec-content > h2:first-child {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.heading-permalink {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 0.4em;
+  opacity: 0;
+  text-decoration: none;
+  transition: opacity 120ms ease;
+}
+
+h2:hover .heading-permalink,
+h3:hover .heading-permalink,
+.heading-permalink:focus-visible {
+  opacity: 1;
+}
+
 .normative-list {
   margin: 18px 0 0;
   padding-left: 1.2rem;

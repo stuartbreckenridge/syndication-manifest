@@ -1,5 +1,5 @@
 export const stuartBreckenridgeExample = {
-  "version": "https://syndicationmanifest.org/spec/0.1",
+  "version": "0.1",
   "poll_interval_seconds": 3600,
   "publication": {
     "name": "Stuart Breckenridge",
@@ -30,8 +30,8 @@ export const stuartBreckenridgeExample = {
           "mime_type": "application/feed+json",
           "format_version": "1.1",
           "rel": [
-            "self",
-            "canonical"
+            "primary",
+            "subscribe"
           ],
           "title": "Stuart Breckenridge",
           "description": "JSON Feed for all posts.",
@@ -88,8 +88,8 @@ export const stuartBreckenridgeExample = {
           "mime_type": "application/feed+json",
           "format_version": "1.1",
           "rel": [
-            "self",
-            "canonical"
+            "primary",
+            "subscribe"
           ],
           "title": "Stuart Breckenridge: Featured",
           "description": "JSON Feed for featured posts.",
@@ -146,8 +146,8 @@ export const stuartBreckenridgeExample = {
           "mime_type": "application/feed+json",
           "format_version": "1.1",
           "rel": [
-            "self",
-            "canonical"
+            "primary",
+            "subscribe"
           ],
           "title": "Stuart Breckenridge: Links",
           "description": "JSON Feed for linked-list posts.",

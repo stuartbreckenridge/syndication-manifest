@@ -1,5 +1,5 @@
 export const daringFireballExample = {
-  "version": "https://syndicationmanifest.org/spec/0.1",
+  "version": "0.1",
   "publication": {
     "name": "Daring Fireball",
     "uri": "https://daringfireball.net/",
@@ -18,8 +18,8 @@ export const daringFireballExample = {
       "mime_type": "application/atom+xml",
       "format_version": "1.0",
       "rel": [
-        "self",
-        "canonical"
+        "primary",
+        "subscribe"
       ],
       "title": "Daring Fireball",
       "description": "Main feed for everything on Daring Fireball.",

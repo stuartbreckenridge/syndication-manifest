@@ -1,0 +1,77 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const publishers = [
+  {
+    name: "Syndication Manifest",
+    uri: "https://syndicationmanifest.org/",
+    manifest: "https://syndicationmanifest.org/.well-known/syndication",
+    note: "The reference site for this draft."
+  }
+];
+
+const readers: { name: string; uri: string; note: string }[] = [];
+---
+
+<BaseLayout
+  title="Implementations | Syndication Manifest"
+  description="Publishers serving a Syndication Manifest and readers consuming one."
+>
+  <main class="main" id="main">
+    <article class="document">
+      <header class="document-header">
+        <p class="eyebrow">Implementations</p>
+        <h1>Known implementations</h1>
+        <p class="lede">
+          A short list of publishers serving a Syndication Manifest and readers that
+          consume one. Open an issue or pull request to add yours.
+        </p>
+        <p class="intro-links">
+          <a href="https://github.com/stuartbreckenridge/SyndicationManifest/issues/new">Submit an implementation</a>
+        </p>
+      </header>
+
+      <section>
+        <h2>Publishers</h2>
+        <ol class="entry-list" aria-label="Publishers">
+          {publishers.map((publisher) => (
+            <li>
+              <article class="entry-card">
+                <h2>
+                  <a href={publisher.uri}>{publisher.name}</a>
+                </h2>
+                <p>{publisher.note}</p>
+                <p class="entry-meta">
+                  <a href={publisher.manifest}>{publisher.manifest}</a>
+                </p>
+              </article>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section>
+        <h2>Readers</h2>
+        {readers.length === 0 ? (
+          <p class="note">
+            No public reader implementations are known yet. If you ship one, please
+            submit it.
+          </p>
+        ) : (
+          <ol class="entry-list" aria-label="Readers">
+            {readers.map((reader) => (
+              <li>
+                <article class="entry-card">
+                  <h2>
+                    <a href={reader.uri}>{reader.name}</a>
+                  </h2>
+                  <p>{reader.note}</p>
+                </article>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+    </article>
+  </main>
+</BaseLayout>

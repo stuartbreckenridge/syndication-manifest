@@ -1,5 +1,5 @@
 export const bbcSportFeedsExample = {
-  "version": "https://syndicationmanifest.org/spec/0.1",
+  "version": "0.1",
   "publication": {
     "name": "BBC Sport",
     "uri": "https://www.bbc.co.uk/sport/",
@@ -30,8 +30,8 @@ export const bbcSportFeedsExample = {
       "mime_type": "application/rss+xml",
       "format_version": "2.0",
       "rel": [
-        "self",
-        "canonical"
+        "primary",
+        "subscribe"
       ],
       "title": "Top Stories",
       "icon_url": "https://static.files.bbci.co.uk/core/website/assets/static/sport/bbc-sport-logo.0da9386782.png",

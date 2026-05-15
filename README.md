@@ -8,13 +8,15 @@ The current specification status is Draft 0.1.
 
 ## Project Structure
 
-- `src/pages/` - Astro pages for the home page, examples, and versioned specification.
+- `SPEC.md` - Platform-neutral source of the draft specification. The rendered spec page at `/spec/0.1/` derives from this file.
+- `public/spec/0.1/schema.json` - JSON Schema for the 0.1 document format.
+- `src/pages/` - Astro pages: home, spec, examples, validator, publisher guide, comparison, implementations, entries, and the `/.well-known/syndication` endpoint.
 - `src/components/` - Reusable Astro components for examples and JSON displays.
-- `src/data/` - Example manifest data used by the examples page.
+- `src/data/` - Discovery document and example manifest data.
 - `src/styles/global.css` - Site-wide styles.
-- `public/` - Static assets and deployment headers.
+- `public/_headers` - HTTP headers for static assets (CORS, cache, content-type for the discovery endpoint and schema).
+- `public/_redirects` - Redirects for legacy paths.
 - `wrangler.jsonc` - Cloudflare Workers static asset deployment configuration.
-- `SPEC.md` - Platform-neutral copy of the draft specification.
 
 ## Development
 

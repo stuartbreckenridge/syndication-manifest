@@ -1,5 +1,5 @@
 export const bbcExample = {
-  "version": "https://syndicationmanifest.org/spec/0.1",
+  "version": "0.1",
   "publication": {
     "name": "BBC",
     "uri": "https://www.bbc.co.uk/",

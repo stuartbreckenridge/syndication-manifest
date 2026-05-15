@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://syndicationmanifest.org/spec/0.1/schema.json",
+  "title": "Syndication Manifest 0.1",
+  "description": "JSON Schema for the Syndication Manifest 0.1 discovery document. The specification at https://syndicationmanifest.org/spec/0.1/ is authoritative on any conflict.",
+  "type": "object",
+  "required": ["version", "publication"],
+  "anyOf": [
+    { "required": ["feeds"] },
+    { "required": ["collections"] }
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Syndication Manifest format version, for example \"0.1\"."
+    },
+    "spec_uri": { "type": "string", "format": "uri" },
+    "self_uri": { "type": "string", "format": "uri" },
+    "updated": { "type": "string", "format": "date-time" },
+    "publication": { "$ref": "#/$defs/publication" },
+    "contact": { "$ref": "#/$defs/contact" },
+    "feeds": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/feed" }
+    },
+    "collections": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/collection" }
+    },
+    "poll_interval_seconds": { "type": "integer", "minimum": 0 },
+    "extensions": { "type": "object" }
+  },
+  "$defs": {
+    "publication": {
+      "type": "object",
+      "required": ["name", "uri"],
+      "properties": {
+        "name": { "type": "string" },
+        "uri": { "type": "string", "format": "uri" },
+        "description": { "type": "string" },
+        "language": { "$ref": "#/$defs/bcp47" },
+        "icon": { "type": "string", "format": "uri" },
+        "categories": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "translations": { "$ref": "#/$defs/translations" }
+      }
+    },
+    "feed": {
+      "type": "object",
+      "required": ["uri", "mime_type"],
+      "properties": {
+        "uri": { "type": "string", "format": "uri" },
+        "mime_type": { "type": "string" },
+        "id": { "type": "string" },
+        "format_version": { "type": "string" },
+        "rel": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "title": { "type": "string" },
+        "icon_url": { "type": "string", "format": "uri" },
+        "description": { "type": "string" },
+        "language": { "$ref": "#/$defs/bcp47" },
+        "categories": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "home_page_uri": { "type": "string", "format": "uri" },
+        "poll_interval_seconds": { "type": "integer", "minimum": 0 },
+        "translations": { "$ref": "#/$defs/translations" }
+      }
+    },
+    "collection": {
+      "type": "object",
+      "required": ["id", "title"],
+      "anyOf": [
+        { "required": ["feeds"] },
+        { "required": ["feeds_uri"] }
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string" },
+        "icon_url": { "type": "string", "format": "uri" },
+        "feeds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/feed" }
+        },
+        "feeds_uri": { "type": "string", "format": "uri" },
+        "feed_count": { "type": "integer", "minimum": 0 },
+        "uri": { "type": "string", "format": "uri" },
+        "description": { "type": "string" },
+        "language": { "$ref": "#/$defs/bcp47" },
+        "categories": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "translations": { "$ref": "#/$defs/translations" }
+      }
+    },
+    "contact": {
+      "type": "object",
+      "anyOf": [
+        { "required": ["name"] },
+        { "required": ["uri"] },
+        { "required": ["email"] }
+      ],
+      "properties": {
+        "name": { "type": "string" },
+        "uri": { "type": "string", "format": "uri" },
+        "email": { "type": "string", "format": "email" }
+      }
+    },
+    "translations": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z]{2,3}(-[A-Za-z0-9]+)*$": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "title": { "type": "string" },
+            "description": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "bcp47": {
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]+)*$"
+    }
+  }
+}

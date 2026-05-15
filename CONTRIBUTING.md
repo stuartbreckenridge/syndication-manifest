@@ -36,7 +36,9 @@ npm run build
 
 ## Draft Specification Changes
 
-Make normative specification edits in `SPEC.md`, then update the rendered Astro page at `src/pages/spec/0.1.astro` and the affected examples to match.
+Make normative specification edits in `SPEC.md`. The rendered page at `/spec/0.1/` derives from `SPEC.md` directly, so there is no separate copy to keep in sync. Update affected examples in `src/data/` when the wire format changes.
+
+If a change alters the JSON shape, update `public/spec/0.1/schema.json` so the validator and external tooling stay aligned.
 
 For changes that alter the wire format or client/publisher behavior, include:
 
