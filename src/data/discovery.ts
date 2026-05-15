@@ -23,7 +23,7 @@ export const getDiscoveryDocument = (baseUrl = defaultBaseUrl) => {
     },
     contact: {
       name: "Syndication Manifest editor",
-      uri: "https://github.com/stuartbreckenridge/SyndicationManifest/issues"
+      uri: "https://github.com/stuartbreckenridge/syndication-manifest/issues"
     },
     feeds: [
       {
