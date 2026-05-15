@@ -3,6 +3,7 @@ title: "Introducing Syndication Manifest"
 guid: "xO3tV2ThWXadeEiY2QvWE"
 description: "A short note on why this draft exists and what it gives feed readers."
 pubDate: 2026-05-12
+draft: true
 ---
 
 Syndication Manifest starts with a small problem: feed readers should not need to guess where a publisher keeps its public feeds.
