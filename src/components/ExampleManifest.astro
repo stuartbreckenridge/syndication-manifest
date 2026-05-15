@@ -1,0 +1,8 @@
+---
+const { document, title = "/.well-known/syndication" } = Astro.props;
+---
+
+<figure class="json-example">
+  <figcaption>{title}</figcaption>
+  <pre><code>{JSON.stringify(document, null, 2)}</code></pre>
+</figure>

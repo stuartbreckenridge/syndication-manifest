@@ -1,0 +1,68 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import * as spec from "../../../SPEC.md";
+
+const { Content, frontmatter } = spec;
+const headings = spec.getHeadings().filter((heading: { depth: number }) => heading.depth === 2);
+---
+
+<BaseLayout
+  title="Syndication Manifest Specification"
+  description={frontmatter.summary}
+>
+  <main class="main" id="main">
+    <header class="document document-header">
+      <p class="eyebrow">Specification</p>
+      <h1>Syndication Manifest Specification</h1>
+      <p class="lede">{frontmatter.summary}</p>
+      <dl class="summary-list compact" aria-label="Spec summary">
+        <div>
+          <dt>Status</dt>
+          <dd>{frontmatter.status} {frontmatter.version}</dd>
+        </div>
+        <div>
+          <dt>Document</dt>
+          <dd>{frontmatter.document}</dd>
+        </div>
+        <div>
+          <dt>Scope</dt>
+          <dd>{frontmatter.scope}</dd>
+        </div>
+        <div>
+          <dt>Schema</dt>
+          <dd><a href="/spec/0.1/schema.json">/spec/0.1/schema.json</a></dd>
+        </div>
+        <div>
+          <dt>Source</dt>
+          <dd><a href="https://github.com/stuartbreckenridge/SyndicationManifest/blob/main/SPEC.md">SPEC.md on GitHub</a></dd>
+        </div>
+      </dl>
+    </header>
+
+    <section>
+      <div class="document spec-layout">
+        <aside class="toc" aria-label="Spec sections">
+          {headings.map((heading: { slug: string; text: string }) => (
+            <a href={`#${heading.slug}`}>{heading.text}</a>
+          ))}
+        </aside>
+
+        <article class="spec-content">
+          <Content />
+        </article>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  for (const heading of document.querySelectorAll(".spec-content h2[id], .spec-content h3[id]")) {
+    const anchor = document.createElement("a");
+    anchor.href = `#${heading.id}`;
+    anchor.className = "heading-permalink";
+    anchor.setAttribute("aria-label", `Permalink to ${heading.textContent}`);
+    anchor.textContent = "#";
+    heading.appendChild(document.createTextNode(" "));
+    heading.appendChild(anchor);
+  }
+</script>

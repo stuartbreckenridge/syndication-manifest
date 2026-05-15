@@ -1,0 +1,344 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Validate | Syndication Manifest"
+  description="Validate a Syndication Manifest document against the 0.1 JSON Schema."
+>
+  <main class="main" id="main">
+    <article class="document">
+      <header class="document-header">
+        <p class="eyebrow">Validator</p>
+        <h1>Validate a syndication manifest</h1>
+        <p class="lede">
+          Paste a JSON document or enter a site URL to check it against the
+          Syndication Manifest 0.1 schema. Validation runs in your browser.
+        </p>
+      </header>
+
+      <section class="validator">
+        <form id="validator-form" class="validator-form">
+          <div class="validator-mode" role="radiogroup" aria-label="Source">
+            <label>
+              <input type="radio" name="mode" value="paste" checked />
+              Paste JSON
+            </label>
+            <label>
+              <input type="radio" name="mode" value="url" />
+              Fetch from site
+            </label>
+          </div>
+
+          <div class="validator-field" data-field="paste">
+            <label for="validator-json">JSON document</label>
+            <textarea
+              id="validator-json"
+              name="json"
+              rows="14"
+              spellcheck="false"
+              placeholder='{"version": "0.1", "publication": {"name": "Example", "uri": "https://example.com/"}, "feeds": [{"uri": "https://example.com/feed.xml", "mime_type": "application/rss+xml"}]}'
+            ></textarea>
+          </div>
+
+          <div class="validator-field" data-field="url" hidden>
+            <label for="validator-url">Site URL</label>
+            <input
+              id="validator-url"
+              name="url"
+              type="url"
+              autocomplete="off"
+              placeholder="https://example.com/"
+            />
+            <p class="validator-hint">
+              The validator will request
+              <code>&lt;origin&gt;/.well-known/syndication</code> from your browser.
+              The site must respond with
+              <code>Access-Control-Allow-Origin: *</code>.
+            </p>
+          </div>
+
+          <button type="submit" class="validator-submit">Validate</button>
+        </form>
+
+        <div id="validator-result" class="validator-result" hidden></div>
+      </section>
+    </article>
+  </main>
+</BaseLayout>
+
+<script type="module">
+  import Ajv from "https://esm.sh/ajv@8?bundle";
+  import addFormats from "https://esm.sh/ajv-formats@2?bundle";
+
+  const form = document.getElementById("validator-form");
+  const resultEl = document.getElementById("validator-result");
+  const fields = form.querySelectorAll("[data-field]");
+  const jsonEl = document.getElementById("validator-json");
+  const urlEl = document.getElementById("validator-url");
+
+  let validate;
+  const ensureValidator = async () => {
+    if (validate) return validate;
+    const response = await fetch("/spec/0.1/schema.json");
+    if (!response.ok) throw new Error(`Schema fetch failed (${response.status})`);
+    const schema = await response.json();
+    const ajv = new Ajv({ allErrors: true, strict: false });
+    addFormats(ajv);
+    validate = ajv.compile(schema);
+    return validate;
+  };
+
+  for (const radio of form.elements.namedItem("mode")) {
+    radio.addEventListener("change", () => {
+      for (const field of fields) {
+        field.hidden = field.dataset.field !== radio.value;
+      }
+    });
+  }
+
+  const renderSuccess = (note, document) => {
+    const headers = document?.__headers;
+    const headerHtml = headers ? renderHeaderReport(headers) : "";
+    resultEl.hidden = false;
+    resultEl.className = "validator-result validator-result-ok";
+    resultEl.innerHTML = `
+      <h2>Looks valid</h2>
+      <p>${note}</p>
+      ${headerHtml}
+    `;
+  };
+
+  const renderErrors = (errors, note) => {
+    resultEl.hidden = false;
+    resultEl.className = "validator-result validator-result-error";
+    const list = errors
+      .map((err) => {
+        const path = err.instancePath || "(root)";
+        return `<li><code>${escapeHtml(path)}</code> ${escapeHtml(err.message ?? "is invalid")}</li>`;
+      })
+      .join("");
+    resultEl.innerHTML = `
+      <h2>Validation failed</h2>
+      <p>${note}</p>
+      <ul class="validator-errors">${list}</ul>
+    `;
+  };
+
+  const renderHeaderReport = (headers) => {
+    const rows = [
+      ["Content-Type", headers.contentType, /syndication\+json|application\/json/.test(headers.contentType ?? "")],
+      ["Access-Control-Allow-Origin", headers.cors, headers.cors === "*"],
+      ["Cache-Control", headers.cache, Boolean(headers.cache)]
+    ];
+    const items = rows
+      .map(([label, value, ok]) => `
+        <li>
+          <span class="validator-status">${ok ? "ok" : "missing"}</span>
+          <code>${escapeHtml(label)}</code>
+          <span>${escapeHtml(value ?? "(not set)")}</span>
+        </li>`)
+      .join("");
+    return `
+      <h3>HTTP headers</h3>
+      <ul class="validator-headers">${items}</ul>
+    `;
+  };
+
+  const escapeHtml = (value) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  const renderFatal = (message) => {
+    resultEl.hidden = false;
+    resultEl.className = "validator-result validator-result-error";
+    resultEl.innerHTML = `<h2>Could not validate</h2><p>${escapeHtml(message)}</p>`;
+  };
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    resultEl.hidden = true;
+    resultEl.innerHTML = "";
+
+    const mode = form.elements.namedItem("mode").value;
+    let document;
+    let note = "";
+    let headers;
+
+    try {
+      if (mode === "paste") {
+        const raw = jsonEl.value.trim();
+        if (!raw) {
+          renderFatal("Paste a JSON document first.");
+          return;
+        }
+        document = JSON.parse(raw);
+        note = "Document parsed locally and validated against the 0.1 schema.";
+      } else {
+        const rawUrl = urlEl.value.trim();
+        if (!rawUrl) {
+          renderFatal("Enter a site URL.");
+          return;
+        }
+        const base = new URL(rawUrl);
+        const target = new URL("/.well-known/syndication", base);
+        const response = await fetch(target.toString(), { headers: { Accept: "application/syndication+json, application/json" } });
+        if (!response.ok) {
+          renderFatal(`Fetch returned ${response.status} ${response.statusText}.`);
+          return;
+        }
+        headers = {
+          contentType: response.headers.get("content-type"),
+          cors: response.headers.get("access-control-allow-origin"),
+          cache: response.headers.get("cache-control")
+        };
+        document = await response.json();
+        note = `Fetched ${target.toString()} and validated against the 0.1 schema.`;
+      }
+    } catch (error) {
+      renderFatal(error instanceof Error ? error.message : String(error));
+      return;
+    }
+
+    let validateFn;
+    try {
+      validateFn = await ensureValidator();
+    } catch (error) {
+      renderFatal(error instanceof Error ? error.message : String(error));
+      return;
+    }
+
+    const ok = validateFn(document);
+    if (ok) {
+      document.__headers = headers;
+      renderSuccess(note, document);
+    } else {
+      renderErrors(validateFn.errors ?? [], note);
+    }
+  });
+</script>
+
+<style>
+  .validator {
+    margin-top: 28px;
+  }
+
+  .validator-form {
+    display: grid;
+    gap: 18px;
+  }
+
+  .validator-mode {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-size: 0.95rem;
+  }
+
+  .validator-mode label {
+    align-items: center;
+    color: var(--ink);
+    display: inline-flex;
+    gap: 6px;
+  }
+
+  .validator-field label {
+    color: var(--ink);
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .validator-field textarea,
+  .validator-field input[type="url"] {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    padding: 12px 14px;
+    width: 100%;
+  }
+
+  .validator-field textarea {
+    line-height: 1.5;
+    resize: vertical;
+  }
+
+  .validator-hint {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin-top: 6px;
+  }
+
+  .validator-submit {
+    align-self: flex-start;
+    background: var(--ink);
+    border: 0;
+    border-radius: 6px;
+    color: var(--paper);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    padding: 10px 18px;
+  }
+
+  .validator-submit:hover {
+    background: var(--accent);
+  }
+
+  .validator-result {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-top: 24px;
+    padding: 18px 20px;
+  }
+
+  .validator-result h2 {
+    border-top: 0;
+    font-size: 1.05rem;
+    margin: 0 0 8px;
+    padding-top: 0;
+  }
+
+  .validator-result-ok {
+    background: #f0f7ee;
+    border-color: #b8d8b1;
+  }
+
+  .validator-result-error {
+    background: #fff0ee;
+    border-color: #e8b9b3;
+  }
+
+  .validator-errors,
+  .validator-headers {
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+  }
+
+  .validator-errors li,
+  .validator-headers li {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 8px 0;
+  }
+
+  .validator-headers li {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .validator-status {
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+</style>

@@ -1,0 +1,49 @@
+---
+import { getCollection } from "astro:content";
+import { isPublishedEntry, sortEntriesNewestFirst } from "../../data/entries";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const entries = sortEntriesNewestFirst(
+  (await getCollection("entries")).filter(isPublishedEntry)
+);
+
+const formatDate = new Intl.DateTimeFormat("en", {
+  day: "numeric",
+  month: "long",
+  timeZone: "UTC",
+  year: "numeric"
+});
+---
+
+<BaseLayout
+  title="Entries | Syndication Manifest"
+  description="Updates about the Syndication Manifest draft specification."
+>
+  <main class="main" id="main">
+    <article class="document">
+      <header class="document-header">
+        <p class="eyebrow">Entries</p>
+        <h1>Entries</h1>
+        <p class="lede">
+          Notes about the draft specification, feed discovery, and implementation details.
+        </p>
+      </header>
+
+      <ol class="entry-list" aria-label="Entries">
+        {entries.map((entry) => (
+          <li>
+            <article class="entry-card">
+              <time datetime={entry.data.pubDate.toISOString()}>
+                {formatDate.format(entry.data.pubDate)}
+              </time>
+              <h2>
+                <a href={`/entries/${entry.id}/`}>{entry.data.title}</a>
+              </h2>
+              <p>{entry.data.description}</p>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </article>
+  </main>
+</BaseLayout>

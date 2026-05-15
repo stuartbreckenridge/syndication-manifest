@@ -1,0 +1,114 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Compare | Syndication Manifest"
+  description="How Syndication Manifest relates to HTML autodiscovery, HTTP Link headers, OPML, JSON Feed, and other discovery mechanisms."
+>
+  <main class="main" id="main">
+    <article class="document">
+      <header class="document-header">
+        <p class="eyebrow">Compare</p>
+        <h1>Why not just use what already exists?</h1>
+        <p class="lede">
+          Syndication Manifest is one discovery option among several. Here is how it
+          relates to the existing ones, and why a new document is worth the small
+          surface it adds.
+        </p>
+      </header>
+
+      <section>
+        <h2>HTML <code>&lt;link rel="alternate"&gt;</code> autodiscovery</h2>
+        <p>
+          The classic mechanism: a feed reader fetches the page the user pasted, parses
+          the HTML head, and picks up <code>rel="alternate"</code> links of type
+          <code>application/rss+xml</code> or <code>application/atom+xml</code>.
+        </p>
+        <p>
+          Works well for one page, one feed. Breaks when a publication advertises
+          different feeds on different pages, when the home page does not list every
+          feed, or when the reader wants to enumerate feeds without scraping HTML.
+          Syndication Manifest gives one publication-level answer that does not depend
+          on which page was fetched.
+        </p>
+      </section>
+
+      <section>
+        <h2>HTTP <code>Link</code> headers</h2>
+        <p>
+          Servers can advertise feeds with <code>Link: &lt;url&gt;; rel="alternate"; type="application/rss+xml"</code>.
+          Same modelling problem as the HTML version: it is tied to the response the
+          reader happened to fetch. Syndication Manifest documents are a single
+          canonical resource, not a header on an unrelated page.
+        </p>
+        <p>
+          The two are complementary: a publisher MAY advertise the manifest itself
+          with <code>Link: &lt;/.well-known/syndication&gt;; rel="syndication"</code>.
+        </p>
+      </section>
+
+      <section>
+        <h2>OPML</h2>
+        <p>
+          OPML is great for moving subscription lists between readers, and some
+          publications expose an OPML catalogue. The trade-offs:
+        </p>
+        <ul>
+          <li>OPML is XML, which is heavier to parse from browser-based readers than JSON.</li>
+          <li>OPML has no widely adopted convention for advertising icons, categories, or deferred sub-collections.</li>
+          <li>OPML has no agreed well-known location, so it still needs discovery.</li>
+        </ul>
+        <p>
+          OPML remains the right tool for subscription import and export. Syndication
+          Manifest is the right tool for publisher-declared discovery.
+        </p>
+      </section>
+
+      <section>
+        <h2>JSON Feed self-reference</h2>
+        <p>
+          JSON Feed includes a <code>feed_url</code> field so a reader that already has
+          a feed can confirm its canonical URL. That is feed-level metadata, not a
+          publication-level catalogue. It does not list a publication's other feeds,
+          collections, or external feeds the publisher wants to advertise.
+        </p>
+      </section>
+
+      <section>
+        <h2>WebFinger and other well-known URIs</h2>
+        <p>
+          Syndication Manifest follows the
+          <a href="https://www.rfc-editor.org/rfc/rfc8615">RFC 8615</a>
+          pattern of <code>/.well-known/</code> URIs, the same approach used by
+          WebFinger, oauth-authorization-server, security.txt, and many others. The
+          convention is well understood by infrastructure operators and CDN
+          configurations.
+        </p>
+      </section>
+
+      <section>
+        <h2>Why a JSON document at a fixed path?</h2>
+        <ul>
+          <li>
+            One predictable URL. Readers do not have to fetch and parse HTML or guess
+            paths like <code>/feed</code>, <code>/rss</code>, <code>/atom.xml</code>.
+          </li>
+          <li>
+            Publication-level scope. The document describes a publication's feeds, not
+            one page's feeds.
+          </li>
+          <li>
+            Compact for browsers. JSON is cheap to parse client-side, which matters for
+            web-based readers.
+          </li>
+          <li>
+            Room to grow. Collections, deferred sub-documents, translations, and
+            extensions let large publications express structure without bloating the
+            top-level document.
+          </li>
+        </ul>
+      </section>
+    </article>
+  </main>
+</BaseLayout>

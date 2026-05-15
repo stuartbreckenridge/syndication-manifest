@@ -1,0 +1,54 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import JsonExample from "../components/JsonExample.astro";
+---
+
+<BaseLayout
+  title="Syndication Manifest"
+  description="Predictable discovery for public feeds."
+>
+  <main class="main" id="main">
+    <article class="document home-document">
+      <header class="document-header">
+        <p class="eyebrow">Draft 0.1</p>
+        <h1>Syndication Manifest</h1>
+        <p class="lede">
+          Predictable discovery for public feeds.
+        </p>
+        <p class="intro-links">
+          <a href="/spec/0.1/">Read the spec</a>
+          <a href="/examples/">View examples</a>
+        </p>
+      </header>
+
+      <section id="goals" class="home-section">
+        <h2>Syndication discovery should be simple. Ask once.</h2>
+        <p>
+          A feed reader should be able to make one request, get the publisher's
+          syndication feed list, and stop. No full-site crawl, no HTML scraping, no guessing
+          common feed URLs.
+        </p>
+        <p>
+          Clients request <code>/.well-known/syndication</code> before parsing pages or
+          guessing URLs. The document lists public web feeds, publisher-declared
+          metadata, optional collections, and external feed claims.
+        </p>
+        <p>
+          External listings are claims by the publication, not proof of control over
+          another origin. Think YouTube.
+        </p>
+      </section>
+
+      <section class="home-section">
+        <h2>Small core, large collections.</h2>
+        <p>
+          A document needs only enough information for a reader to know who published
+          it, which feeds or collections are offered, and what media type each feed uses.
+          Large publishers can advertise collections first and defer detailed feed lists
+          until a reader needs them.
+        </p>
+        <JsonExample />
+      </section>
+    </article>
+  </main>
+</BaseLayout>

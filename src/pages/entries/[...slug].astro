@@ -1,0 +1,57 @@
+---
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { isPublishedEntry } from "../../data/entries";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const entries = (await getCollection("entries")).filter(isPublishedEntry);
+
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry }
+  }));
+}
+
+const { entry } = Astro.props as { entry: CollectionEntry<"entries"> };
+const { Content } = await render(entry);
+
+const formatDate = new Intl.DateTimeFormat("en", {
+  day: "numeric",
+  month: "long",
+  timeZone: "UTC",
+  year: "numeric"
+});
+---
+
+<BaseLayout title={`${entry.data.title} | Syndication Manifest`} description={entry.data.description}>
+  <main class="main" id="main">
+    <article class="document entry-document">
+      <header class="document-header">
+        <p class="eyebrow">Entry</p>
+        <h1>{entry.data.title}</h1>
+        <p class="lede">{entry.data.description}</p>
+        <p class="entry-meta">
+          <time datetime={entry.data.pubDate.toISOString()}>
+            {formatDate.format(entry.data.pubDate)}
+          </time>
+          {entry.data.updatedDate && (
+            <>
+              {" "}
+              <span aria-hidden="true">/</span>
+              {" "}
+              <span>Updated </span>
+              <time datetime={entry.data.updatedDate.toISOString()}>
+                {formatDate.format(entry.data.updatedDate)}
+              </time>
+            </>
+          )}
+        </p>
+      </header>
+
+      <div class="entry-body">
+        <Content />
+      </div>
+    </article>
+  </main>
+</BaseLayout>

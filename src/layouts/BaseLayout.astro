@@ -1,0 +1,85 @@
+---
+import "../styles/global.css";
+
+const {
+  title = "Syndication Manifest",
+  description = "Predictable discovery for public feeds.",
+  ogImage = "/icons/syndication-summary.png"
+} = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
+const ogImageUrl = new URL(ogImage, Astro.site ?? Astro.url).toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="194x194" />
+    <link rel="alternate" type="application/rss+xml" title="Syndication Manifest Entries" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Syndication Manifest Entries: Full Content" href="/feed-full.xml" />
+    <link rel="syndication" type="application/syndication+json" href="/.well-known/syndication" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:site_name" content="Syndication Manifest" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <title>{title}</title>
+    <style is:inline>
+      .skip-nav {
+        background: #222521;
+        color: #fffefa;
+        left: 16px;
+        position: fixed;
+        top: 12px;
+        transform: translateY(-160%);
+        z-index: 50;
+      }
+
+      .skip-nav:focus {
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-nav" href="#main">Skip to content</a>
+    <div class="site-shell">
+      <header class="site-header">
+        <nav class="nav" aria-label="Primary">
+          <a class="brand" href="/">
+            <span>Syndication Manifest</span>
+          </a>
+          <div class="nav-links">
+            <a href="/spec/0.1/">Spec</a>
+            <a href="/examples/">Examples</a>
+            <a href="/validate/">Validate</a>
+            <a href="/guide/publishers/">Guide</a>
+            <a href="/compare/">Compare</a>
+            <a href="/entries/">Entries</a>
+          </div>
+        </nav>
+      </header>
+      <slot />
+      <footer class="site-footer">
+        <p>Predictable discovery for public feeds.</p>
+        <nav class="footer-links" aria-label="Site links">
+          <a href="/.well-known/syndication">Manifest</a>
+          <a href="/spec/0.1/schema.json">Schema</a>
+          <a href="/feed.xml">Subscribe</a>
+          <a href="/implementations/">Implementations</a>
+          <a href="https://github.com/stuartbreckenridge/SyndicationManifest">GitHub</a>
+          <a href="https://github.com/stuartbreckenridge/SyndicationManifest/blob/main/CONTRIBUTING.md">Contributing</a>
+          <a href="https://github.com/stuartbreckenridge/SyndicationManifest/blob/main/LICENSE.md">License (CC0)</a>
+        </nav>
+      </footer>
+    </div>
+  </body>
+</html>

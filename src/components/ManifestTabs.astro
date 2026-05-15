@@ -1,0 +1,53 @@
+---
+const { tabs, label = "Example manifests", id = "manifest-tabs" } = Astro.props;
+---
+
+<div class="example-tabs" data-manifest-tabs>
+  <div class="tab-list" role="tablist" aria-label={label}>
+    {tabs.map((tab, index) => (
+      <button
+        id={`${id}-tab-${tab.id}`}
+        type="button"
+        role="tab"
+        aria-selected={index === 0 ? "true" : "false"}
+        aria-controls={`${id}-panel-${tab.id}`}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+
+  {tabs.map((tab, index) => (
+    <figure
+      id={`${id}-panel-${tab.id}`}
+      class="json-example"
+      role="tabpanel"
+      aria-labelledby={`${id}-tab-${tab.id}`}
+      hidden={index === 0 ? undefined : true}
+    >
+      <figcaption>{tab.title}</figcaption>
+      <pre><code>{JSON.stringify(tab.document, null, 2)}</code></pre>
+    </figure>
+  ))}
+</div>
+
+<script>
+  for (const tabs of document.querySelectorAll("[data-manifest-tabs]")) {
+    const buttons = Array.from(tabs.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(tabs.querySelectorAll('[role="tabpanel"]'));
+
+    const select = (button) => {
+      for (const candidate of buttons) {
+        candidate.setAttribute("aria-selected", String(candidate === button));
+      }
+
+      for (const panel of panels) {
+        panel.hidden = panel.id !== button.getAttribute("aria-controls");
+      }
+    };
+
+    for (const button of buttons) {
+      button.addEventListener("click", () => select(button));
+    }
+  }
+</script>
